@@ -5,11 +5,13 @@ import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.controller.adapter.DateAdapter;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.film.FilmService;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -24,11 +26,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(FilmController.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 public class FilmControllerTest {
     @Autowired
     private MockMvc mvc;
-
+    @Autowired
+    FilmService filmService;
     private final Gson gson = new GsonBuilder().registerTypeAdapter(LocalDate.class, new DateAdapter()).create();
     private final String path = "/films";
     private Validator validator;
@@ -42,7 +46,7 @@ public class FilmControllerTest {
 
     @Test
     public void createFilm() throws Exception {
-        film = Film.builder().id(1)
+        film = Film.builder().id(1L)
                 .name("film_name").description("film_descr")
                 .releaseDate(LocalDate.parse("2000-02-02"))
                 .duration(90)
@@ -69,7 +73,7 @@ public class FilmControllerTest {
 
     @Test
     public void validateEmptyName() throws Exception {
-        film = Film.builder().id(1)
+        film = Film.builder().id(1L)
                 .name("")
                 .description("film_descr").releaseDate(LocalDate.parse("2000-02-02")).duration(90).build();
 
@@ -84,7 +88,7 @@ public class FilmControllerTest {
 
     @Test
     public void validateNullName() throws Exception {
-        film = Film.builder().id(1)
+        film = Film.builder().id(1L)
                 .name(null)
                 .description("film_descr").releaseDate(LocalDate.parse("2000-02-02")).duration(90).build();
 
@@ -98,7 +102,7 @@ public class FilmControllerTest {
 
     @Test
     public void validateDescriptionSizeMore200() throws Exception {
-        film = Film.builder().id(1).name("film_name")
+        film = Film.builder().id(1L).name("film_name")
                 .description("1".repeat(201))
                 .releaseDate(LocalDate.parse("2000-02-02")).duration(90).build();
 
@@ -113,7 +117,7 @@ public class FilmControllerTest {
 
     @Test
     public void validateReleaseDate() throws Exception {
-        film = Film.builder().id(1).name("film_name").description("film_descr")
+        film = Film.builder().id(1L).name("film_name").description("film_descr")
                 .releaseDate(LocalDate.parse("1895-12-28"))
                 .duration(90).build();
 
@@ -121,7 +125,7 @@ public class FilmControllerTest {
 
         assertEquals(0, violation.size());
 
-        final Film newFilm = Film.builder().id(2).name("film_name").description("film_descr")
+        final Film newFilm = Film.builder().id(2L).name("film_name").description("film_descr")
                 .releaseDate(LocalDate.parse("1895-12-27"))
                 .duration(90).build();
 
@@ -136,7 +140,7 @@ public class FilmControllerTest {
 
     @Test
     public void validateNullDuration() throws Exception {
-        film = Film.builder().id(1).name("film_name").description("film_descr").releaseDate(LocalDate.parse("2000-02-02"))
+        film = Film.builder().id(1L).name("film_name").description("film_descr").releaseDate(LocalDate.parse("2000-02-02"))
                 .duration(0)
                 .build();
 
@@ -151,7 +155,7 @@ public class FilmControllerTest {
 
     @Test
     public void validateNegativeDuration() throws Exception {
-        film = Film.builder().id(1).name("film_name").description("film_descr").releaseDate(LocalDate.parse("2000-02-02"))
+        film = Film.builder().id(1L).name("film_name").description("film_descr").releaseDate(LocalDate.parse("2000-02-02"))
                 .duration(-1)
                 .build();
 
